@@ -2,8 +2,8 @@
  * @Description: 实用工具类型
  * @Author: zhh_e
  * @Date: 2023-03-13 16:24:41
- * @LastEditors: zhh_e
- * @LastEditTime: 2023-03-13 17:59:54
+ * @LastEditors: 清咔 874518796@qq.com
+ * @LastEditTime: 2023-03-14 22:06:13
  */
 
 // ---------------------------- Partial<T> 转换成可选属性 ---------------------------------
@@ -106,3 +106,47 @@ type UserBase = Omit<UserOmit, 'other' | 'age'>
 
 
 // ---------------------------- Exclude<Type, ExcludedUnion> ---------------------------------
+
+type Exclude1<T, U> = T extends U ? never : T;
+
+
+// ---------------------------- Extract<Type, Union> ---------------------------------
+// 从类型Type中提取所有可以赋值给Union的类型，然后构造一个类型。
+type Extract1<T, U> = T extends U ? T : never;
+
+type ET0 = Extract<'a' | 'b' | 'c', 'a' | 'f'> // ET0 = 'a'
+type ET1 = Extract<'a' | 'b' | 'c' | 'f', 'a' | 'f'> // ET1 = 'a' | 'f'
+type ET2 = Extract<{ a: string, b: string, d: string }, { a: string }>
+// ET2 = { a: string, b: string, d: string }
+
+
+// ---------------------------- Parameters<Type> ---------------------------------
+// 由函数类型Type的参数类型来构建出一个元组类型。
+/**
+ * Obtain the parameters of a function type in a tuple
+ */
+type Parameters1<T extends (...args: any) => any> = T extends (...args: infer P) => any ? P : never;
+
+type PR0 = Parameters<() => string> //  []
+type PR1 = Parameters<(s: string) => string> // [s:string]
+// let pr1: PR1 = ['1', 1] 
+// @errors 不能将类型“[string, number]”分配给类型“[s: string]”。
+// 源具有 2 个元素，但目标仅允许 1 个。ts(2322)
+type PR2 = Parameters<<T>(arg: T) => T> // [arg: unknown]
+
+
+// ---------------------------- ReturnType<Type> ---------------------------------
+// 由函数类型 Type 的返回值类型构造一个新类型
+
+type RT0 = ReturnType<() => string > // string
+type RT1 = ReturnType<() => void> // void
+// type RT2 = ReturnType<Function> 
+// @errors  类型“Function”提供的内容与签名“(...args: any): any”不匹配。ts(2344)
+
+
+// ---------------------------- Required<Type> ---------------------------------
+// 构建一个类型，使类型Type的所有属性为required。 与此相反的是Partial。
+
+interface Props { a?: number; s?:string }
+type RProps = Required<Props>
+// RProps = { a: number, s: string }

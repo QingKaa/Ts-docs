@@ -2,10 +2,10 @@
  * @Description: 
  * @Author: zhh_e
  * @Date: 2023-03-13 16:20:20
- * @LastEditors: zhh_e
- * @LastEditTime: 2023-03-13 17:55:50
+ * @LastEditors: 清咔 874518796@qq.com
+ * @LastEditTime: 2023-03-14 22:08:16
 -->
-# 实用工具类型  
+# 常用实用工具类型  
 
 > TypeScript 提供了一些**全局**的**工具类型**来帮助常见的类型转换。
 
@@ -42,6 +42,20 @@ function updateItem(target: Item, item: Partial<Item>): void {
 }
 updateItem(listItem, { name: 'new Item name' })
 ```   
+----------------------------------------------------------------------
+
+
+## Required<Type>
+> 构建一个类型，使得Type类型所有属性为`required`, 与之相反的是`Partial`
+
+**示例**  
+```ts
+interface Props { a?: number; s?:string }
+type RProps = Required<Props>
+// RProps = { a: number, s: string }
+```
+----------------------------------------------------------------------
+
 
 ## Readonly<Type>  
 
@@ -62,6 +76,7 @@ const todo: Readonly<Todo> = { title: 'now is readonly title' }
 ```ts
 declare function freeze<T>(target: T): Readonly<T>
 ```
+----------------------------------------------------------------------
 
 
 ## Record<Keys, Type>
@@ -84,6 +99,9 @@ const x: Record<Page, PageInfo> = {
     contact: { title: 'contact page' }
 }
 ```
+----------------------------------------------------------------------
+
+
 
 ## Pick<Type, Keys>   
 
@@ -115,6 +133,8 @@ const todoIdList: Pick<Todo1, 'id'>[] = [
     { id: 'sss' }, { id: 2223 }
 ]
 ```
+----------------------------------------------------------------------
+
 
 
 ## Omit<Type,Keys>
@@ -139,8 +159,10 @@ type UserBase = Omit<UserOmit, 'other' | 'age'>
 // type UserBase = {
 //     name: string;
 //     address: string;
-// }
+// }****
 ```
+----------------------------------------------------------------------
+
 
 
 ## Exclude<Type, ExcludedUnion>
@@ -154,4 +176,65 @@ type UserBase = Omit<UserOmit, 'other' | 'age'>
 type Exclude<T, U> = T extends U ? never : T;
 ```
 
+**示例**    
+
+----------------------------------------------------------------------
+
+
+
+## Extract<Type, Union>
+> 从类型`Type`中提取所有可以赋值给 `Union`的类型，然后构造一个类型。   
+
+**实现**
+```ts
+/**
+ * Extract from T those types that are assignable to U
+ */
+type Extract<T, U> = T extends U ? T : never;
+```
+
 **示例**   
+```ts
+type ET0 = Extract<'a' | 'b' | 'c', 'a' | 'f'> // ET0 = 'a'
+type ET1 = Extract<'a' | 'b' | 'c' | 'f', 'a' | 'f'> // ET1 = 'a' | 'f'
+type ET2 = Extract<{ a: string, b: string, d: string }, { a: string }>
+// ET2 = { a: string, b: string, d: string }
+```
+----------------------------------------------------------------------
+
+
+
+## Parameters<Type> 
+> 由函数类型 `Type` 的参数类型 构造出一个元组类型。  
+
+**实现**   
+```ts
+/**
+ * Obtain the parameters of a function type in a tuple
+ */
+type Parameters1<T extends (...args: any) => any> = T extends (...args: infer P) => any ? P : never;
+```
+
+**示例**  
+```ts
+type PR0 = Parameters<() => string> //  []
+type PR1 = Parameters<(s: string) => string> // [s:string]
+// let pr1: PR1 = ['1', 1] 
+// @errors 不能将类型“[string, number]”分配给类型“[s: string]”。
+// 源具有 2 个元素，但目标仅允许 1 个。ts(2322)
+type PR2 = Parameters<<T>(arg: T) => T> // [arg: unknown]
+```
+----------------------------------------------------------------------
+
+
+
+## ReturnTYpe<Type> 
+> 由函数类型`Type`的返回值类型构造一个新的类型。
+
+**示例**   
+```ts
+type RT0 = ReturnType<() => string > // string
+type RT1 = ReturnType<() => void> // void
+// type RT2 = ReturnType<Function> 
+// @errors  类型“Function”提供的内容与签名“(...args: any): any”不匹配。ts(2344)
+```
